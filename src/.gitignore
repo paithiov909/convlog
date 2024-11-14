@@ -1,0 +1,9 @@
+*.o
+*.so
+*.dll
+target
+.cargo/*
+!.cargo/config.toml
+
+Makevars
+Makevars.win
