@@ -8,7 +8,7 @@
 \usage{
 read_tenhou6(file)
 
-read_mjlog(logid = "2022011521gm-0041-0000-12e6e61d")
+read_mjlog(logid)
 }
 \arguments{
 \item{file}{A character vector.

@@ -33,7 +33,7 @@ read_tenhou6 <- function(file) {
 
 #' @rdname read-tenhou6
 #' @export
-read_mjlog <- function(logid = "2022011521gm-0041-0000-12e6e61d") {
+read_mjlog <- function(logid) {
   logid <- paste0("https://tenhou.net/5/mjlog2json.cgi?", logid)
   purrr::map_chr(logid, function(id) {
     scan_ltd(url(id, headers = c("Referer" = "https://tenhou.net/")), what = character(), sep = "\n", quiet = TRUE)
