@@ -6,19 +6,21 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of convlog is to …
+convlog offers wrappers for the ‘convlog’ Rust crate from
+[Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
+that can directly read mahjong logs from ‘tenhou.net/6’ format into R
+lists.
 
 ## Installation
 
-You can install the development version of convlog like so:
+To install from source package, the Rust toolchain is required.
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("pak")
+pak::pak("paithiov909/convlog")
 ```
 
 ## Example
-
-This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(convlog)

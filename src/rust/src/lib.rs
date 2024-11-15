@@ -118,7 +118,7 @@ use savvy::savvy;
 use savvy::{OwnedStringSexp, StringSexp, OwnedListSexp};
 use savvy::NotAvailableValue;
 
-/// Convert 'tenhou.net/6' string into mjai log format
+/// Convert 'tenhou.net/6' JSON strings into mjai log format
 ///
 /// @param x A character vector.
 /// @returns A list of named character vectors
