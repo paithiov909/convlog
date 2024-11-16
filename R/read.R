@@ -15,8 +15,8 @@
 #' This argument is simply passed to `scan()`,
 #' so each element can be either a path to a local file or a URL.
 #' @param logid A character vector that represents identifiers of log files.
-#' @returns A list that contains following named elements:
-#' * `game_info`: A tibble that contains information about the game.
+#' @returns A named list that contains following elements:
+#' * `game_info`: A tibble that contains information about the games.
 #' * `round_info`: A tibble that contains information about rounds.
 #' * `paifu`: A tibble that represents paifu.
 NULL

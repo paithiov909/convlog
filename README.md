@@ -8,8 +8,8 @@
 
 convlog offers wrappers for the ‘convlog’ Rust crate from
 [Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer)
-that can directly read mahjong logs from ‘tenhou.net/6’ format into R
-lists.
+that can directly read mahjong logs from ‘tenhou.net/6’ format into
+tibbles.
 
 ## Installation
 
@@ -26,14 +26,13 @@ pak::pak("paithiov909/convlog")
 library(convlog)
 
 read_tenhou6(system.file("testdata/output_log.example.json", package = "convlog"))
-#> [[1]]
-#> [[1]]$game_info
+#> $game_info
 #> # A tibble: 1 × 4
 #>   game_id names        qijia aka  
 #>     <int> <named list> <int> <lgl>
 #> 1       1 <chr [4]>        0 TRUE 
 #> 
-#> [[1]]$round_info
+#> $round_info
 #> # A tibble: 10 × 10
 #>    game_id round_id bakaze dora_marker kyoku honba kyotaku   oya scores tehais  
 #>      <int>    <int> <chr>  <chr>       <int> <int>   <int> <int> <list> <list>  
@@ -48,7 +47,7 @@ read_tenhou6(system.file("testdata/output_log.example.json", package = "convlog"
 #>  9       1        9 S      1s              3     0       0     2 <int>  <chr[…]>
 #> 10       1       10 S      5s              4     1       1     3 <int>  <chr[…]>
 #> 
-#> [[1]]$paifu
+#> $paifu
 #> # A tibble: 1,031 × 12
 #>    game_id round_id event_id type  actor target pai   tsumogiri consumed
 #>      <int>    <int>    <int> <chr> <int>  <int> <chr> <lgl>     <list>  

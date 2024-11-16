@@ -18,9 +18,9 @@ so each element can be either a path to a local file or a URL.}
 \item{logid}{A character vector that represents identifiers of log files.}
 }
 \value{
-A list that contains following named elements:
+A named list that contains following elements:
 \itemize{
-\item \code{game_info}: A tibble that contains information about the game.
+\item \code{game_info}: A tibble that contains information about the games.
 \item \code{round_info}: A tibble that contains information about rounds.
 \item \code{paifu}: A tibble that represents paifu.
 }

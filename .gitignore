@@ -49,5 +49,9 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
+# vignettes
+inst/doc
+
 .vscode/
+
 *.zip

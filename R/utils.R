@@ -102,5 +102,7 @@ parse_mjai <- function(list_chr) {
         )
       )
     )
-  })
+  }) |>
+    purrr::list_transpose(simplify = FALSE) |>
+    purrr::map(~ purrr::list_rbind(.))
 }

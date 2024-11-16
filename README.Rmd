@@ -19,7 +19,7 @@ pkgload::load_all(export_all = FALSE)
 <!-- badges: start -->
 <!-- badges: end -->
 
-convlog offers wrappers for the 'convlog' Rust crate from [Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer) that can directly read mahjong logs from 'tenhou.net/6' format into R lists.
+convlog offers wrappers for the 'convlog' Rust crate from [Equim-chan/mjai-reviewer](https://github.com/Equim-chan/mjai-reviewer) that can directly read mahjong logs from 'tenhou.net/6' format into tibbles.
 
 ## Installation
 
