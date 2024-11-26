@@ -6,14 +6,16 @@
 \alias{read_mjlog}
 \title{Read and parse 'tenhou.net/6' format log}
 \usage{
-read_tenhou6(file)
+read_tenhou6(file, .progress = FALSE)
 
-read_mjlog(logid)
+read_mjlog(logid, .progress = FALSE)
 }
 \arguments{
 \item{file}{A character vector.
 This argument is simply passed to \code{scan()},
 so each element can be either a path to a local file or a URL.}
+
+\item{.progress}{Whether to show progress bar for \code{purrr::map_chr()}.}
 
 \item{logid}{A character vector that represents identifiers of log files.}
 }
