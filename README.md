@@ -63,4 +63,41 @@ read_tenhou6(system.file("testdata/output_log.example.json", package = "convlog"
 #> 10       1        1       10 dahai     0     NA 7m    FALSE     <NULL>  
 #> # ℹ 1,021 more rows
 #> # ℹ 3 more variables: dora_marker <chr>, deltas <list>, ura_markers <list>
+
+read_mjlog(system.file("mjlog/2010091009gm-00a9-0000-83af2648&tw=2.mjlog", package = "convlog"))
+#> $game_info
+#> # A tibble: 1 × 4
+#>   game_id names        qijia aka  
+#>     <int> <named list> <int> <lgl>
+#> 1       1 <chr [4]>        0 TRUE 
+#> 
+#> $round_info
+#> # A tibble: 8 × 10
+#>   game_id round_id bakaze dora_marker kyoku honba kyotaku   oya scores tehais  
+#>     <int>    <int> <chr>  <chr>       <int> <int>   <int> <int> <list> <list>  
+#> 1       1        1 E      3p              1     0       0     0 <int>  <chr[…]>
+#> 2       1        2 E      4m              2     0       0     1 <int>  <chr[…]>
+#> 3       1        3 E      S               2     1       0     1 <int>  <chr[…]>
+#> 4       1        4 E      1p              3     0       0     2 <int>  <chr[…]>
+#> 5       1        5 E      4s              4     0       0     3 <int>  <chr[…]>
+#> 6       1        6 E      E               4     1       0     3 <int>  <chr[…]>
+#> 7       1        7 S      2m              1     2       1     0 <int>  <chr[…]>
+#> 8       1        8 S      1p              2     0       0     1 <int>  <chr[…]>
+#> 
+#> $paifu
+#> # A tibble: 841 × 12
+#>    game_id round_id event_id type  actor target pai   tsumogiri consumed
+#>      <int>    <int>    <int> <chr> <int>  <int> <chr> <lgl>     <list>  
+#>  1       1        1        1 tsumo     0     NA 8s    NA        <NULL>  
+#>  2       1        1        2 dahai     0     NA 1s    FALSE     <NULL>  
+#>  3       1        1        3 tsumo     1     NA 4s    NA        <NULL>  
+#>  4       1        1        4 dahai     1     NA 9p    FALSE     <NULL>  
+#>  5       1        1        5 tsumo     2     NA 2s    NA        <NULL>  
+#>  6       1        1        6 dahai     2     NA 1s    FALSE     <NULL>  
+#>  7       1        1        7 tsumo     3     NA N     NA        <NULL>  
+#>  8       1        1        8 dahai     3     NA 9m    FALSE     <NULL>  
+#>  9       1        1        9 tsumo     0     NA 7m    NA        <NULL>  
+#> 10       1        1       10 dahai     0     NA 1m    FALSE     <NULL>  
+#> # ℹ 831 more rows
+#> # ℹ 3 more variables: dora_marker <chr>, deltas <list>, ura_markers <list>
 ```

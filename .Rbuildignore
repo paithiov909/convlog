@@ -5,3 +5,5 @@
 ^src/rust/target$
 ^LICENSE\.md$
 ^README\.Rmd$
+
+^mjlog/

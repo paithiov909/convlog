@@ -36,4 +36,6 @@ pak::pak("paithiov909/convlog")
 library(convlog)
 
 read_tenhou6(system.file("testdata/output_log.example.json", package = "convlog"))
+
+read_mjlog(system.file("mjlog/2010091009gm-00a9-0000-83af2648&tw=2.mjlog", package = "convlog"))
 ```

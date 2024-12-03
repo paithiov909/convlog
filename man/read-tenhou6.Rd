@@ -3,12 +3,15 @@
 \name{read-tenhou6}
 \alias{read-tenhou6}
 \alias{read_tenhou6}
+\alias{read_remote_mjlog}
 \alias{read_mjlog}
 \title{Read and parse 'tenhou.net/6' format log}
 \usage{
 read_tenhou6(file, .progress = FALSE)
 
-read_mjlog(logid, .progress = FALSE)
+read_remote_mjlog(logid, .progress = FALSE)
+
+read_mjlog(file, .progress = FALSE)
 }
 \arguments{
 \item{file}{A character vector.
@@ -32,9 +35,27 @@ Read and parse 'tenhou.net/6' format JSON files
 while transforming them into 'mjai' format.
 }
 \details{
-\code{read_mjlog()} internally reads remote JSON files corresponding to \code{logid},
+\code{read_remote_mjlog()} internally reads
+remote JSON files corresponding to \code{logid},
 and converts them into the same format as \code{read_tenhou6()}.
-
-Note that \code{read_mjlog()} is rate-limited to 2 requests per second
+Note that \code{read_remote_mjlog()} is rate-limited to 2 requests per second
 to access the server.
+
+Alternatively, \code{read_mjlog()} can directly read local 'MJLOG' XML files
+while converting them into 'mjai' format.
+This function returns almost the same result as \code{read_tenhou6()},
+but they are not exactly the same.
+As far as I have noticed, the differences are:
+\itemize{
+\item \code{tehais} in \code{game_info} are not arranged.
+\item \code{reach_accepted} events are always inserted
+immediately after the reach event in this implementation,
+even when the reach indicator was melded by another player.
+Due to this, numbering style of \code{round_id} is also different
+than in \code{read_tenhou6()}.
+\item \code{tsumogiri} detection is much stricter than in \code{read_tenhou6()}.
+Even after melds, if the discard is the same as the previous draw,
+it is considered a tsumogiri.
+\item \code{ura_markers} are not revealed when there is no "doraHaiUra" attribute.
+}
 }

@@ -100,28 +100,29 @@ mod conv;
 mod kyoku_filter;
 mod macros;
 mod mjai;
+mod mjlog;
 mod tile;
 
 mod tenhou;
 
-use std::any::Any;
+use std::str::FromStr;
 
-use conv::tenhou_to_mjai;
-use conv::ConvertError;
-use kyoku_filter::KyokuFilter;
-use mjai::Event;
-use tile::{tile_set_eq, Tile};
+pub use conv::{ConvertError, tenhou_to_mjai};
+pub use kyoku_filter::KyokuFilter;
+pub use mjai::Event;
+pub use tile::{tile_set_eq, Tile};
 
+use quick_xml::events::Event as XmlEvent;
+use quick_xml::reader::Reader as XmlReader;
 use serde_json as json;
 
-use savvy::savvy;
-use savvy::{OwnedStringSexp, StringSexp, OwnedListSexp};
-use savvy::NotAvailableValue;
+use savvy::{savvy, savvy_err};
+use savvy::{OwnedListSexp, OwnedStringSexp, StringSexp, NotAvailableValue};
 
 /// Convert 'tenhou.net/6' JSON strings into mjai log format
 ///
 /// @param x A character vector.
-/// @returns A list of named character vectors
+/// @returns A list of character vectors
 /// where each element represents one mjai event as a JSON string.
 /// @noRd
 #[savvy]
@@ -132,7 +133,7 @@ fn parse_tenhou6(x: StringSexp) -> savvy::Result<savvy::Sexp> {
         if e.is_na() {
             let mut dummy = OwnedStringSexp::new(1)?;
             dummy.set_na(0)?;
-            dummy.set_names(&["1"])?;
+            // dummy.set_names(&["1"])?;
             out.set_value(i, dummy)?;
             continue;
         }
@@ -140,13 +141,242 @@ fn parse_tenhou6(x: StringSexp) -> savvy::Result<savvy::Sexp> {
         let events = tenhou_to_mjai(&tenhou_log)?;
 
         let mut ret = OwnedStringSexp::new(events.len())?;
-        let mut names: Vec<String> = Vec::with_capacity(events.len());
-        for (j, event) in events.iter().enumerate()  {
+        // let mut names: Vec<String> = Vec::with_capacity(events.len());
+        for (j, event) in events.iter().enumerate() {
             let to_write = json::to_string(event)?;
             ret.set_elt(j, &to_write)?;
-            names.push(j.to_string());
+            // names.push(j.to_string());
         }
-        ret.set_names(&names)?;
+        // ret.set_names(&names)?;
+        out.set_value(i, ret)?;
+    }
+
+    Ok(out.into())
+}
+
+/// Parse mjlog XML into mjai log format
+///
+/// @param x A character vector.
+/// @returns A list of character vectors
+/// where each element represents one mjai event as a JSON string.
+/// @noRd
+#[savvy]
+fn parse_mjlog(x: StringSexp) -> savvy::Result<savvy::Sexp> {
+    let mut out = OwnedListSexp::new(x.len(), false)?;
+    let mut buf = Vec::new();
+
+    for (i, elem) in x.iter().enumerate() {
+        if elem.is_na() {
+            let mut dummy = OwnedStringSexp::new(1)?;
+            dummy.set_na(0)?;
+            out.set_value(i, dummy)?;
+            continue;
+        }
+        let mut reader = XmlReader::from_str(elem);
+
+        let mut aka_flag: bool = false;
+        let mut is_initialized: bool = false;
+        let mut player_names: (String, String, String, String) = (
+            "player1".to_string(),
+            "player2".to_string(),
+            "player3".to_string(),
+            "player4".to_string(),
+        );
+        let mut last_draw: [u8; 4] = vec![Tile::from_str("?").unwrap().as_u8(); 4].try_into().unwrap();
+        let mut reach_count: u8 = 0;
+
+        let mut events: Vec<Event> = Vec::new();
+        'read_event: loop {
+            match reader.read_event_into(&mut buf) {
+                Ok(XmlEvent::Eof) => break 'read_event,
+                Ok(XmlEvent::Start(e)) => match e.name().as_ref() {
+                    b"mjloggm" => {
+                        let ver = mjlog::parse_mjloggm_version(&e)?;
+                        if ver != "2.3" {
+                            return Err(savvy_err!("mjloggm ver {} is not supported.", ver));
+                        }
+                    }
+                    _ => (),
+                },
+                Ok(XmlEvent::Empty(e)) => {
+                    match e.name().as_ref() {
+                        b"GO" => {
+                            let (flag, is_sanma) = mjlog::parse_game_type(&e)?;
+                            if is_sanma {
+                                return Err(savvy_err!("sanma is not supported."));
+                            }
+                            aka_flag = flag;
+                        }
+                        b"UN" => {
+                            if !is_initialized {
+                                player_names = mjlog::parse_names(&e)?;
+                                is_initialized = true;
+                            }
+                        }
+                        b"TAIKYOKU" => {
+                            let names: [String; 4] = [
+                                player_names.0.clone(),
+                                player_names.1.clone(),
+                                player_names.2.clone(),
+                                player_names.3.clone(),
+                            ];
+                            events.push(Event::StartGame {
+                                names,
+                                kyoku_first: 0,
+                                aka_flag,
+                            });
+                        }
+                        b"SHUFFLE" => {}
+                        b"INIT" => {
+                            // NOTE: 手牌は並び替えされていない
+                            let (bakaze, dora_marker, kyoku, honba, kyotaku, oya) =
+                                mjlog::parse_init_others(&e, aka_flag)?;
+                            let scores = mjlog::parse_init_scores(&e)?;
+                            let tehais = mjlog::parse_init_tehais(&e, aka_flag)?;
+                            events.push(Event::StartKyoku {
+                                bakaze,
+                                dora_marker,
+                                kyoku,
+                                honba,
+                                kyotaku,
+                                oya,
+                                scores,
+                                tehais
+                            });
+                        }
+                        b"DORA" => {
+                            let dora_marker = mjlog::parse_dora(&e, aka_flag)?;
+                            events.push(Event::Dora { dora_marker });
+                        }
+                        b"N" => {
+                           let (call_type, caller, callee, tiles) = mjlog::parse_n(&e, aka_flag)?;
+                           match call_type.as_str() {
+                               "Chi" => {
+                                    events.push(Event::Chi {
+                                        actor: caller,
+                                        target: callee,
+                                        pai: tiles[0],
+                                        consumed: tiles[1..].try_into().unwrap(),
+                                    });
+                               }
+                               "Pon" => {
+                                    events.push(Event::Pon {
+                                        actor: caller,
+                                        target: callee,
+                                        pai: tiles[0],
+                                        consumed: tiles[1..].try_into().unwrap(),
+                                    });
+                               }
+                               "Kakan" => {
+                                    events.push(Event::Kakan {
+                                        actor: caller,
+                                        pai: tiles[0],
+                                        consumed: vec![tiles[1], tiles[1], tiles[1]].try_into().unwrap(),
+                                    });
+                               }
+                               "Ankan" => {
+                                    // 5m,5p,5sは、赤ありのとき1枚赤くする
+                                    let tile_0: Tile = if aka_flag & matches_tu8!(tiles[0].as_u8(), 5m | 5p | 5s) {
+                                        tiles[0].akaize()
+                                    } else {
+                                        tiles[0]
+                                    };
+                                    events.push(Event::Ankan {
+                                        actor: caller,
+                                        consumed: vec![tiles[1], tiles[1], tiles[1], tile_0].try_into().unwrap(),
+                                    });
+                                }
+                                "Minkan" => {
+                                    events.push(Event::Daiminkan {
+                                        actor: caller,
+                                        target: callee,
+                                        pai: tiles[0],
+                                        consumed: tiles[1..].try_into().unwrap(),
+                                    });
+                               }
+                               _ => {}
+                           }
+                        }
+                        b"REACH" => {
+                            // NOTE: 本来の`reach_accepted`は宣言牌が鳴かれた場合は次以降の巡目になるが、ここでは考慮しない
+                            let (actor, step) = mjlog::parse_reach(&e)?;
+                            match step {
+                                1 => events.push(Event::Reach { actor }),
+                                2 if reach_count < 4 => {
+                                    reach_count += 1;
+                                    events.push(Event::ReachAccepted { actor })
+                                }
+                                _ => (),
+                            }
+                        }
+                        b"AGARI" => {
+                            let (actor, target, ura_markers, deltas) =
+                                mjlog::parse_agari(&e, aka_flag)?;
+                            events.push(Event::Hora {
+                                actor,
+                                target,
+                                ura_markers,
+                                deltas,
+                            });
+                            events.push(Event::EndKyoku);
+                            reach_count = 0;
+                            if mjlog::check_if_owari(&e)? {
+                                events.push(Event::EndGame);
+                            }
+                        }
+                        b"RYUUKYOKU" => {
+                            let deltas = mjlog::parse_ryuukyoku(&e)?;
+                            events.push(Event::Ryukyoku { deltas });
+                            events.push(Event::EndKyoku);
+                            reach_count = 0;
+                            if mjlog::check_if_owari(&e)? {
+                                events.push(Event::EndGame);
+                            }
+                        }
+                        b"BYE" => {}
+                        _ => {
+                            let name = e.name().into_inner();
+                            let name = String::from_utf8_lossy(name).into_owned();
+                            let tile_int = name[1..].parse::<u8>().unwrap();
+                            let pai = mjlog::translate_mjlog_tile(tile_int, aka_flag).unwrap();
+                            match name.chars().next() {
+                                // [T-W]はTsumo
+                                Some('T') => {
+                                    last_draw[0] = pai.as_u8();
+                                    events.push(Event::Tsumo { actor: 0, pai })
+                                }
+                                Some('U') => {
+                                    last_draw[1] = pai.as_u8();
+                                    events.push(Event::Tsumo { actor: 1, pai })
+                                }
+                                Some('V') => {
+                                    last_draw[2] = pai.as_u8();
+                                    events.push(Event::Tsumo { actor: 2, pai })
+                                }
+                                Some('W') => {
+                                    last_draw[3] = pai.as_u8();
+                                    events.push(Event::Tsumo { actor: 3, pai })
+                                }
+                                // [D-G]はDahai
+                                Some('D') => events.push(Event::Dahai { actor: 0, pai, tsumogiri: last_draw[0] == pai.as_u8() }),
+                                Some('E') => events.push(Event::Dahai { actor: 1, pai, tsumogiri: last_draw[1] == pai.as_u8() }),
+                                Some('F') => events.push(Event::Dahai { actor: 2, pai, tsumogiri: last_draw[2] == pai.as_u8() }),
+                                Some('G') => events.push(Event::Dahai { actor: 3, pai, tsumogiri: last_draw[3] == pai.as_u8() }),
+                                _ => (),
+                            }
+                        }
+                    }
+                }
+                _ => (),
+            }
+            buf.clear();
+        }
+
+        let mut ret = OwnedStringSexp::new(events.len())?;
+        for (j, event) in events.iter().enumerate() {
+            let to_write = json::to_string(event)?;
+            ret.set_elt(j, &to_write)?;
+        }
         out.set_value(i, ret)?;
     }
 

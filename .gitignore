@@ -54,4 +54,5 @@ inst/doc
 
 .vscode/
 
+mjlog/*
 *.zip

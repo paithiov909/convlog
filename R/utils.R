@@ -87,7 +87,7 @@ parse_mjai <- function(list_chr) {
       ),
       round_info = tibble::tibble(
         game_id = game_id,
-        round_id = seq_along(unique(round_id)),
+        round_id = seq_along(unique(round_id))[seq_len(nrow(start_kyoku))],
         start_kyoku[-1] # remove type column
       ),
       paifu = tibble::tibble(

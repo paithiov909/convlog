@@ -17,6 +17,8 @@ num_enum = "0.7"
 ahash = "0.8"
 serde_with = "3"
 serde = { version = "1", features = ["derive"] }
+quick-xml = "0.37.1"
+urlencoding = "2.1.3"
 
 [profile.release]
 # By default, on release build, savvy terminates the R session when a panic
