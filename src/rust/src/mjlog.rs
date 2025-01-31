@@ -178,25 +178,29 @@ fn parse_kan(meld: u16) -> Vec<u8> {
 }
 
 fn parse_deltas<'a>(sc: Option<Attribute<'a>>) -> Result<Option<[i32; 4]>, quick_xml::Error> {
-    let deltas_str = sc.map(|a| a.decode_and_unescape_value(Decoder {}).unwrap());
-    let deltas: Vec<i32> = deltas_str
+    let deltas = sc.map(|a| {
+        a.decode_and_unescape_value(Decoder {})
+    })
+    .transpose()?;
+
+    let deltas: Vec<i32> = deltas
         .iter()
-        .flat_map(|s| s.split(',').enumerate())
+        .flat_map(|s| s.split(",").enumerate())
         .filter(|&(i, _)| i % 2 != 0)
         .map(|(_, s)| s.parse::<i32>().unwrap() * 100)
         .collect();
 
-    let deltas_array: Option<[i32; 4]> = match deltas.len() {
+    let deltas: Option<[i32; 4]> = match deltas.len() {
         4 => Some(deltas.try_into().unwrap()),
         _ => None,
     };
 
-    Ok(deltas_array)
+    Ok(deltas)
 }
 
 pub fn parse_mjloggm_version<'a>(e: &BytesStart<'a>) -> Result<String, quick_xml::Error> {
     let version = e.try_get_attribute("ver")?
-        .unwrap()
+        .expect("Failed to parse 'ver' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .into_owned();
     Ok(version)
@@ -204,7 +208,7 @@ pub fn parse_mjloggm_version<'a>(e: &BytesStart<'a>) -> Result<String, quick_xml
 
 pub fn parse_game_type<'a>(e: &BytesStart<'a>) -> Result<(bool, bool), quick_xml::Error> {
     let game_type = e.try_get_attribute("type")?
-        .unwrap()
+        .expect("Failed to parse 'type' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .parse::<u16>()
         .unwrap();
@@ -218,7 +222,7 @@ pub fn parse_names<'a>(e: &BytesStart<'a>) -> Result<(String, String, String, St
     for i in 0..4 {
         let name = e
             .try_get_attribute(&format!("n{}", i))?
-            .unwrap()
+            .expect("Failed to parse player names.")
             .decode_and_unescape_value(Decoder {})?
             .into_owned();
         let name = decode(&name).unwrap();
@@ -229,7 +233,7 @@ pub fn parse_names<'a>(e: &BytesStart<'a>) -> Result<(String, String, String, St
 
 pub fn parse_init_others<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(Tile, Tile, u8, u8, u8, u8), quick_xml::Error> {
     let seed_values = e.try_get_attribute("seed")?
-        .unwrap()
+        .expect("Failed to parse 'seed' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .split(',')
         .map(|s| s.parse::<u8>().unwrap())
@@ -247,7 +251,7 @@ pub fn parse_init_others<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(Tile
     let kyotaku = seed_values[2];
 
     let oya = e.try_get_attribute("oya")?
-        .unwrap()
+        .expect("Failed to parse 'oya' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .parse::<u8>().unwrap();
 
@@ -255,12 +259,12 @@ pub fn parse_init_others<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(Tile
 }
 
 pub fn parse_init_scores(e: &BytesStart<'_>) -> Result<[i32; 4], quick_xml::Error> {
-    // FIXME: Old logs do not have 'ten' values.
-    let scores_str = e
+    // NOTE: Old logs do not have 'ten' values.
+    let scores = e
         .try_get_attribute("ten")?
-        .expect("Missing 'ten' attribute. This mjlog file is probably too old to parse.")
+        .expect("Failed to parse 'ten' attribute. Possibly this mjlog file is too old to parse.")
         .decode_and_unescape_value(Decoder {})?;
-    let scores: [i32; 4] = scores_str
+    let scores: [i32; 4] = scores
         .split(',')
         .map(|s| s.parse::<i32>().unwrap() * 100)
         .collect::<Vec<i32>>()
@@ -288,11 +292,11 @@ pub fn parse_init_tehais<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<[[Til
 }
 
 pub fn parse_dora<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<Tile, quick_xml::Error> {
-    let dora_str = e
+    let dora_tile = e
         .try_get_attribute("hai")?
-        .unwrap()
+        .expect("Failed to parse 'hai' attribute.")
         .decode_and_unescape_value(Decoder {})?;
-    let dora_tile = dora_str.parse::<u8>().unwrap();
+    let dora_tile = dora_tile.parse::<u8>().unwrap();
     let dora = mjlog::translate_mjlog_tile(dora_tile, aka_flag).unwrap();
     Ok(dora)
 }
@@ -300,13 +304,13 @@ pub fn parse_dora<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<Tile, quick_
 pub fn parse_n<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(String, u8, u8, Vec<Tile>), quick_xml::Error> {
     let caller = e
         .try_get_attribute("who")?
-        .unwrap()
+        .expect("Failed to parse 'who' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .parse::<u8>()
         .unwrap();
     let meld = e
         .try_get_attribute("m")?
-        .unwrap()
+        .expect("Failed to parse 'm' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .parse::<u16>()
         .unwrap();
@@ -333,31 +337,31 @@ pub fn parse_n<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(String, u8, u8
 }
 
 pub fn parse_reach<'a>(e: &BytesStart<'a>) -> Result<(u8, u8), quick_xml::Error> {
-    let who_str = e
+    let who = e
         .try_get_attribute("who")?
-        .unwrap()
+        .expect("Failed to parse 'who' attribute.")
         .decode_and_unescape_value(Decoder {})?;
-    let who = who_str.parse::<u8>().unwrap();
-    let step_str = e
+    let who = who.parse::<u8>().unwrap();
+    let step = e
         .try_get_attribute("step")?
-        .unwrap()
+        .expect("Failed to parse 'step' attribute.")
         .decode_and_unescape_value(Decoder {})?;
-    let step = step_str.parse::<u8>().unwrap();
+    let step = step.parse::<u8>().unwrap();
     Ok((who, step))
 }
 
 pub fn parse_agari<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(u8, u8, Option<Vec<Tile>>, Option<[i32; 4]>), quick_xml::Error> {
-    let who_str = e
+    let who = e
         .try_get_attribute("who")?
-        .unwrap()
+        .expect("Failed to parse 'who' attribute.")
         .decode_and_unescape_value(Decoder {})?;
-    let who = who_str.parse::<u8>().unwrap();
+    let who = who.parse::<u8>().unwrap();
 
-    let from_who_str = e
+    let from_who = e
         .try_get_attribute("fromWho")?
-        .unwrap()
+        .expect("Failed to parse 'fromWho' attribute.")
         .decode_and_unescape_value(Decoder {})?;
-    let from_who = from_who_str.parse::<u8>().unwrap();
+    let from_who = from_who.parse::<u8>().unwrap();
 
     let dora_ura_attribute = e.try_get_attribute("doraHaiUra")?;
     let ura_markers: Option<Vec<Tile>> = if let Some(dora_ura_attribute) = dora_ura_attribute {
@@ -385,7 +389,7 @@ pub fn check_if_owari<'a>(e: &BytesStart<'a>) -> Result<bool, quick_xml::Error> 
 }
 
 pub fn parse_ryuukyoku<'a>(e: &BytesStart<'a>) -> Result<Option<[i32; 4]>, quick_xml::Error> {
-    let score_attribute = e.try_get_attribute("sc")?;
-    let deltas = parse_deltas(score_attribute)?;
+    let sc_attribute = e.try_get_attribute("sc")?;
+    let deltas = parse_deltas(sc_attribute)?;
     Ok(deltas)
 }

@@ -1,6 +1,6 @@
 #' Read and parse 'tenhou.net/6' format log
 #'
-#' Read and parse 'tenhou.net/6' format JSON files
+#' Reads and parses 'tenhou.net/6' format JSON files
 #' while transforming them into 'mjai' format.
 #'
 #' `read_remote_mjlog()` internally reads

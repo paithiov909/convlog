@@ -31,7 +31,7 @@ A named list that contains following elements:
 }
 }
 \description{
-Read and parse 'tenhou.net/6' format JSON files
+Reads and parses 'tenhou.net/6' format JSON files
 while transforming them into 'mjai' format.
 }
 \details{

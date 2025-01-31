@@ -133,7 +133,6 @@ fn parse_tenhou6(x: StringSexp) -> savvy::Result<savvy::Sexp> {
         if e.is_na() {
             let mut dummy = OwnedStringSexp::new(1)?;
             dummy.set_na(0)?;
-            // dummy.set_names(&["1"])?;
             out.set_value(i, dummy)?;
             continue;
         }
@@ -141,13 +140,10 @@ fn parse_tenhou6(x: StringSexp) -> savvy::Result<savvy::Sexp> {
         let events = tenhou_to_mjai(&tenhou_log)?;
 
         let mut ret = OwnedStringSexp::new(events.len())?;
-        // let mut names: Vec<String> = Vec::with_capacity(events.len());
         for (j, event) in events.iter().enumerate() {
             let to_write = json::to_string(event)?;
             ret.set_elt(j, &to_write)?;
-            // names.push(j.to_string());
         }
-        // ret.set_names(&names)?;
         out.set_value(i, ret)?;
     }
 
