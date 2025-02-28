@@ -33,7 +33,7 @@ parse_mjai <- function(list_chr) {
         always_list = FALSE
       )
 
-    # when there is only one kyoku, parsed result is simplified by fparse
+    # When there is single kyoku, parsed result is simplified by fparse
     # so we need to make it one more level nested.
     if ("type" %in% names(start_kyoku)) {
       start_kyoku <- list(start_kyoku)
@@ -42,6 +42,13 @@ parse_mjai <- function(list_chr) {
       purrr::list_transpose() |>
       tibble::as_tibble()
 
+    other_events <-
+      fparse(collapsed, query = paste0("/", wh0(!types %in% meta_event)))
+    # When there is single event, parsed result is simplified by fparse
+    # although this is an edge case...
+    if (!is.list(other_events[[1]])) {
+      other_events <- list(other_events)
+    }
     other_events <-
       c(
         # for template, create an union of all possible events
@@ -56,7 +63,7 @@ parse_mjai <- function(list_chr) {
           deltas = list(NA_real_), # hora, ryukyoku. optional
           ura_markers = list(NA_character_) # hora. optional
         )),
-        fparse(collapsed, query = paste0("/", wh0(!types %in% meta_event)))
+        other_events
       ) |>
       purrr::list_transpose(
         default = list(

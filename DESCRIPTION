@@ -1,19 +1,19 @@
 Package: convlog
 Title: Read Mahjong Logs From 'tenhou.net/6' Format
-Version: 0.0.5
+Version: 0.0.6
 Authors@R: c(
     person("Akiru", "Kato", , "paithiov909@gmail.com", role = c("aut", "cre")),
     person("Equim", "chan", role = "cph",
            comment = "Author of the 'convlog' crate")
   )
 Description: Offers wrappers for the 'convlog' crate from 'mjai-reviewer'
-    <https://github.com/Equim-chan/mjai-reviewer> that can directly read
+    (<https://github.com/Equim-chan/mjai-reviewer>) that can directly read
     mahjong logs from 'tenhou.net/6' format into tibbles.
 License: Apache License (>= 2)
 Depends:
     R (>= 4.1)
 Imports:
-    purrr,
+    purrr (>= 1.0.3),
     ratelimitr,
     RcppSimdJson,
     tibble

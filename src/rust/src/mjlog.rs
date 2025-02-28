@@ -1,6 +1,6 @@
 // these logics are taken from https://github.com/fstqwq/mjlog2mjai/blob/master/parse.py
-use crate::Tile;
 use crate::mjlog;
+use crate::Tile;
 
 use quick_xml::encoding::Decoder;
 use quick_xml::events::attributes::Attribute;
@@ -38,14 +38,14 @@ fn parse_chi(meld: u16) -> Vec<u8> {
         base_tile + 4 * 1 + ((meld & 0x0060) >> 5),
         base_tile + 4 * 2 + ((meld & 0x0180) >> 7),
     ]
-        .iter()
-        .map(|&x| x as u8)
-        .collect();
+    .iter()
+    .map(|&x| x as u8)
+    .collect();
 
     if rotation == 1 {
-        return vec![tiles[1], tiles[0], tiles[2]]
+        return vec![tiles[1], tiles[0], tiles[2]];
     } else if rotation == 2 {
-        return vec![tiles[2], tiles[0], tiles[1]]
+        return vec![tiles[2], tiles[0], tiles[1]];
     }
     tiles
 }
@@ -79,7 +79,7 @@ fn parse_pon(meld: u16) -> Vec<u8> {
             tiles[1] += 1;
             tiles[2] += 2;
         }
-        _ => {},
+        _ => {}
     }
 
     if rotation == 1 {
@@ -178,10 +178,9 @@ fn parse_kan(meld: u16) -> Vec<u8> {
 }
 
 fn parse_deltas<'a>(sc: Option<Attribute<'a>>) -> Result<Option<[i32; 4]>, quick_xml::Error> {
-    let deltas = sc.map(|a| {
-        a.decode_and_unescape_value(Decoder {})
-    })
-    .transpose()?;
+    let deltas = sc
+        .map(|a| a.decode_and_unescape_value(Decoder {}))
+        .transpose()?;
 
     let deltas: Vec<i32> = deltas
         .iter()
@@ -199,7 +198,8 @@ fn parse_deltas<'a>(sc: Option<Attribute<'a>>) -> Result<Option<[i32; 4]>, quick
 }
 
 pub fn parse_mjloggm_version<'a>(e: &BytesStart<'a>) -> Result<String, quick_xml::Error> {
-    let version = e.try_get_attribute("ver")?
+    let version = e
+        .try_get_attribute("ver")?
         .expect("Failed to parse 'ver' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .into_owned();
@@ -207,7 +207,8 @@ pub fn parse_mjloggm_version<'a>(e: &BytesStart<'a>) -> Result<String, quick_xml
 }
 
 pub fn parse_game_type<'a>(e: &BytesStart<'a>) -> Result<(bool, bool), quick_xml::Error> {
-    let game_type = e.try_get_attribute("type")?
+    let game_type = e
+        .try_get_attribute("type")?
         .expect("Failed to parse 'type' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .parse::<u16>()
@@ -217,7 +218,9 @@ pub fn parse_game_type<'a>(e: &BytesStart<'a>) -> Result<(bool, bool), quick_xml
     Ok((!aka_flag, is_sanma))
 }
 
-pub fn parse_names<'a>(e: &BytesStart<'a>) -> Result<(String, String, String, String), quick_xml::Error> {
+pub fn parse_names<'a>(
+    e: &BytesStart<'a>,
+) -> Result<(String, String, String, String), quick_xml::Error> {
     let mut names = vec![String::new(); 4];
     for i in 0..4 {
         let name = e
@@ -228,11 +231,20 @@ pub fn parse_names<'a>(e: &BytesStart<'a>) -> Result<(String, String, String, St
         let name = decode(&name).unwrap();
         names[i] = name.into_owned();
     }
-    Ok((names[0].clone(), names[1].clone(), names[2].clone(), names[3].clone()))
+    Ok((
+        names[0].clone(),
+        names[1].clone(),
+        names[2].clone(),
+        names[3].clone(),
+    ))
 }
 
-pub fn parse_init_others<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(Tile, Tile, u8, u8, u8, u8), quick_xml::Error> {
-    let seed_values = e.try_get_attribute("seed")?
+pub fn parse_init_others<'a>(
+    e: &BytesStart<'a>,
+    aka_flag: bool,
+) -> Result<(Tile, Tile, u8, u8, u8, u8), quick_xml::Error> {
+    let seed_values = e
+        .try_get_attribute("seed")?
         .expect("Failed to parse 'seed' attribute.")
         .decode_and_unescape_value(Decoder {})?
         .split(',')
@@ -250,10 +262,12 @@ pub fn parse_init_others<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(Tile
     let honba = seed_values[1];
     let kyotaku = seed_values[2];
 
-    let oya = e.try_get_attribute("oya")?
+    let oya = e
+        .try_get_attribute("oya")?
         .expect("Failed to parse 'oya' attribute.")
         .decode_and_unescape_value(Decoder {})?
-        .parse::<u8>().unwrap();
+        .parse::<u8>()
+        .unwrap();
 
     Ok((bakaze, dora, kyoku, honba, kyotaku, oya))
 }
@@ -273,12 +287,16 @@ pub fn parse_init_scores(e: &BytesStart<'_>) -> Result<[i32; 4], quick_xml::Erro
     Ok(scores)
 }
 
-pub fn parse_init_tehais<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<[[Tile; 13]; 4], quick_xml::Error> {
+pub fn parse_init_tehais<'a>(
+    e: &BytesStart<'a>,
+    aka_flag: bool,
+) -> Result<[[Tile; 13]; 4], quick_xml::Error> {
     let mut tehais = [[Tile::default(); 13]; 4];
     for i in 0..4 {
         let attr_name = format!("hai{}", i);
         if let Some(attribute) = e.try_get_attribute(attr_name.as_str())? {
-            let tiles = attribute.decode_and_unescape_value(Decoder {})?
+            let tiles = attribute
+                .decode_and_unescape_value(Decoder {})?
                 .split(',')
                 .map(|s| {
                     let tile = s.parse::<u8>().unwrap();
@@ -301,7 +319,10 @@ pub fn parse_dora<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<Tile, quick_
     Ok(dora)
 }
 
-pub fn parse_n<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(String, u8, u8, Vec<Tile>), quick_xml::Error> {
+pub fn parse_n<'a>(
+    e: &BytesStart<'a>,
+    aka_flag: bool,
+) -> Result<(String, u8, u8, Vec<Tile>), quick_xml::Error> {
     let caller = e
         .try_get_attribute("who")?
         .expect("Failed to parse 'who' attribute.")
@@ -317,16 +338,18 @@ pub fn parse_n<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(String, u8, u8
     let callee_rel = (meld & 0x3) as u8;
     let callee = (caller + callee_rel) % 4;
 
-    let (call_type, mianzi): (&str, Vec<u8>) =
-        if meld & (1 << 2) != 0 {
-            ("Chi", parse_chi(meld))
-        } else if meld & (1 << 3) != 0 {
-            ("Pon", parse_pon(meld))
-        } else if meld & (1 << 4) != 0 {
-            ("Kakan", parse_kakan(meld))
-        } else {
-            (if callee_rel == 1 { "Minkan" } else { "Ankan" }, parse_kan(meld))
-        };
+    let (call_type, mianzi): (&str, Vec<u8>) = if meld & (1 << 2) != 0 {
+        ("Chi", parse_chi(meld))
+    } else if meld & (1 << 3) != 0 {
+        ("Pon", parse_pon(meld))
+    } else if meld & (1 << 4) != 0 {
+        ("Kakan", parse_kakan(meld))
+    } else {
+        (
+            if callee_rel == 1 { "Minkan" } else { "Ankan" },
+            parse_kan(meld),
+        )
+    };
 
     let tiles = mianzi
         .iter()
@@ -350,7 +373,10 @@ pub fn parse_reach<'a>(e: &BytesStart<'a>) -> Result<(u8, u8), quick_xml::Error>
     Ok((who, step))
 }
 
-pub fn parse_agari<'a>(e: &BytesStart<'a>, aka_flag: bool) -> Result<(u8, u8, Option<Vec<Tile>>, Option<[i32; 4]>), quick_xml::Error> {
+pub fn parse_agari<'a>(
+    e: &BytesStart<'a>,
+    aka_flag: bool,
+) -> Result<(u8, u8, Option<Vec<Tile>>, Option<[i32; 4]>), quick_xml::Error> {
     let who = e
         .try_get_attribute("who")?
         .expect("Failed to parse 'who' attribute.")
