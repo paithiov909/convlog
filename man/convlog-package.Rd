@@ -6,7 +6,7 @@
 \alias{convlog-package}
 \title{convlog: Read Mahjong Logs From 'tenhou.net/6' Format}
 \description{
-Offers wrappers for the 'convlog' crate from 'mjai-reviewer' (\url{https://github.com/Equim-chan/mjai-reviewer}) that can directly read mahjong logs from 'tenhou.net/6' format into tibbles.
+Offers wrappers for the 'convlog' crate from 'mjai-reviewer' \url{https://github.com/Equim-chan/mjai-reviewer} that can directly read mahjong logs from 'tenhou.net/6' format into tibbles.
 }
 \author{
 \strong{Maintainer}: Akiru Kato \email{paithiov909@gmail.com}

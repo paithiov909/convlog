@@ -7,7 +7,7 @@ Authors@R: c(
            comment = "Author of the 'convlog' crate")
   )
 Description: Offers wrappers for the 'convlog' crate from 'mjai-reviewer'
-    (<https://github.com/Equim-chan/mjai-reviewer>) that can directly read
+    <https://github.com/Equim-chan/mjai-reviewer> that can directly read
     mahjong logs from 'tenhou.net/6' format into tibbles.
 License: Apache License (>= 2)
 Depends:
