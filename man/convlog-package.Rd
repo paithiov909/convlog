@@ -17,4 +17,4 @@ Other contributors:
 }
 
 }
-\keyword{interal}
+\keyword{internal}

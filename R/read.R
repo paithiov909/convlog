@@ -1,4 +1,4 @@
-#' @keywords interal
+#' @keywords internal
 "_PACKAGE"
 
 #' Read and parse 'tenhou.net/6' format log
