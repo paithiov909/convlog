@@ -1,3 +1,6 @@
+#' @keywords interal
+"_PACKAGE"
+
 #' Read and parse 'tenhou.net/6' format log
 #'
 #' Reads and parses 'tenhou.net/6' format JSON files
