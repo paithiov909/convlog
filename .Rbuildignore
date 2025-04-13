@@ -1,9 +1,12 @@
 ^convlog\.Rproj$
 ^\.Rproj\.user$
 
-^src/rust/.cargo$
-^src/rust/target$
 ^LICENSE\.md$
 ^README\.Rmd$
 
 ^mjlog/
+
+^src/rust/\.cargo$
+^src/rust/target$
+^src/Makevars$
+^src/Makevars\.win$

@@ -1,6 +1,6 @@
 Package: convlog
 Title: Read Mahjong Logs From 'tenhou.net/6' Format
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(
     person("Akiru", "Kato", , "paithiov909@gmail.com", role = c("aut", "cre")),
     person("Equim-chan", role = "cph",

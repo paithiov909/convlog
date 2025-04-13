@@ -34,20 +34,20 @@ SEXP handle_result(SEXP res_) {
     return (SEXP)res;
 }
 
-SEXP savvy_parse_tenhou6__impl(SEXP c_arg__x) {
-    SEXP res = savvy_parse_tenhou6__ffi(c_arg__x);
-    return handle_result(res);
-}
-
 SEXP savvy_parse_mjlog__impl(SEXP c_arg__x) {
     SEXP res = savvy_parse_mjlog__ffi(c_arg__x);
     return handle_result(res);
 }
 
+SEXP savvy_parse_tenhou6__impl(SEXP c_arg__x) {
+    SEXP res = savvy_parse_tenhou6__ffi(c_arg__x);
+    return handle_result(res);
+}
+
 
 static const R_CallMethodDef CallEntries[] = {
-    {"savvy_parse_tenhou6__impl", (DL_FUNC) &savvy_parse_tenhou6__impl, 1},
     {"savvy_parse_mjlog__impl", (DL_FUNC) &savvy_parse_mjlog__impl, 1},
+    {"savvy_parse_tenhou6__impl", (DL_FUNC) &savvy_parse_tenhou6__impl, 1},
     {NULL, NULL, 0}
 };
 

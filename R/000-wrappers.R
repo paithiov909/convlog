@@ -37,16 +37,6 @@ NULL
   stop(class, " cannot be modified", call. = FALSE)
 }
 
-#' Convert 'tenhou.net/6' JSON strings into mjai log format
-#'
-#' @param x A character vector.
-#' @returns A list of character vectors
-#' where each element represents one mjai event as a JSON string.
-#' @noRd
-`parse_tenhou6` <- function(`x`) {
-  .Call(savvy_parse_tenhou6__impl, `x`)
-}
-
 #' Parse mjlog XML into mjai log format
 #'
 #' @param x A character vector.
@@ -55,6 +45,16 @@ NULL
 #' @noRd
 `parse_mjlog` <- function(`x`) {
   .Call(savvy_parse_mjlog__impl, `x`)
+}
+
+#' Convert 'tenhou.net/6' JSON strings into mjai log format
+#'
+#' @param x A character vector.
+#' @returns A list of character vectors
+#' where each element represents one mjai event as a JSON string.
+#' @noRd
+`parse_tenhou6` <- function(`x`) {
+  .Call(savvy_parse_tenhou6__impl, `x`)
 }
 
 
