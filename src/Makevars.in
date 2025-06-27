@@ -1,18 +1,19 @@
 TARGET = @TARGET@
 
 PROFILE = @PROFILE@
+FEATURE_FLAGS = @FEATURE_FLAGS@
 
 # Add flags if necessary
-RUSTFLAGS = 
+RUSTFLAGS =
 
 TARGET_DIR = $(CURDIR)/rust/target
 LIBDIR = $(TARGET_DIR)/$(TARGET)/$(subst dev,debug,$(PROFILE))
 STATLIB = $(LIBDIR)/libconvlog.a
 PKG_LIBS = -L$(LIBDIR) -lconvlog
 
-CARGO_BUILD_ARGS = --lib --profile $(PROFILE) --manifest-path=./rust/Cargo.toml --target-dir $(TARGET_DIR)
+CARGO_BUILD_ARGS = --lib --profile $(PROFILE) $(FEATURE_FLAGS) --manifest-path=./rust/Cargo.toml --target-dir $(TARGET_DIR)
 
-all: C_clean
+all: $(SHLIB) clean_intermediate
 
 $(SHLIB): $(STATLIB)
 
@@ -29,11 +30,12 @@ $(STATLIB):
 	  else \
 	    export CARGO_PROFILE_DEV_PANIC="abort" && \
 	    export CARGO_PROFILE_RELEASE_PANIC="abort" && \
+	    export RUSTFLAGS="$(RUSTFLAGS) -Zdefault-visibility=hidden" && \
 	    cargo +nightly build $(CARGO_BUILD_ARGS) --target $(TARGET) -Zbuild-std=panic_abort,std; \
 	  fi
 
-C_clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS)
+clean_intermediate: $(SHLIB)
+	rm -f $(STATLIB)
 
 clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS) rust/target
+	rm -Rf $(SHLIB) $(OBJECTS) $(STATLIB) ./rust/target

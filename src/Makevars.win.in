@@ -1,9 +1,10 @@
 TARGET = @TARGET@
 
 PROFILE = @PROFILE@
+FEATURE_FLAGS = @FEATURE_FLAGS@
 
 # Add flags if necessary
-RUSTFLAGS = 
+RUSTFLAGS =
 
 TARGET_DIR = $(CURDIR)/rust/target
 LIBDIR = $(TARGET_DIR)/$(TARGET)/$(subst dev,debug,$(PROFILE))
@@ -14,7 +15,7 @@ PKG_LIBS = -L$(LIBDIR) -lconvlog -lws2_32 -ladvapi32 -luserenv -lbcrypt -lntdll
 # to overwrite it via configuration.
 CARGO_LINKER = x86_64-w64-mingw32.static.posix-gcc.exe
 
-all: C_clean
+all: $(SHLIB) clean_intermediate
 
 $(SHLIB): $(STATLIB)
 
@@ -29,10 +30,12 @@ $(STATLIB):
 	  export CC="$(CC)" && \
 	  export CFLAGS="$(CFLAGS)" && \
 	  export RUSTFLAGS="$(RUSTFLAGS)" && \
-	  cargo build --target $(TARGET) --lib --profile $(PROFILE) --manifest-path ./rust/Cargo.toml --target-dir $(TARGET_DIR)
+	  cargo build --target $(TARGET) --lib --profile $(PROFILE) $(FEATURE_FLAGS) --manifest-path ./rust/Cargo.toml --target-dir $(TARGET_DIR)
 
-C_clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS)
+clean_intermediate: $(SHLIB)
+	rm -f $(STATLIB)
 
 clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS) rust/target
+	rm -Rf $(SHLIB) $(OBJECTS) $(STATLIB) ./rust/target
+
+.PHONY: all clean_intermediate clean
