@@ -1,6 +1,6 @@
 Package: convlog
 Title: Read Mahjong Logs From 'tenhou.net/6' Format
-Version: 0.0.8
+Version: 0.0.9
 Authors@R: c(
     person("Akiru", "Kato", , "paithiov909@gmail.com", role = c("aut", "cre")),
     person("Equim-chan", role = "cph",
@@ -14,15 +14,13 @@ Depends:
     R (>= 4.1)
 Imports:
     purrr (>= 1.0.3),
-    ratelimitr,
     RcppSimdJson,
     tibble
 Suggests:
-    curl,
     dplyr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 SystemRequirements: Cargo (Rust's package manager), rustc

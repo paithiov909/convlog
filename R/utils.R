@@ -1,6 +1,3 @@
-#' @importFrom ratelimitr limit_rate rate
-scan_ltd <- ratelimitr::limit_rate(scan, ratelimitr::rate(n = 2, period = 1))
-
 wh0 <- function(x, ...) {
   which(x, ...) - 1
 }

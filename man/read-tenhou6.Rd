@@ -3,13 +3,10 @@
 \name{read-tenhou6}
 \alias{read-tenhou6}
 \alias{read_tenhou6}
-\alias{read_remote_mjlog}
 \alias{read_mjlog}
 \title{Read and parse 'tenhou.net/6' format log}
 \usage{
 read_tenhou6(file, .progress = FALSE)
-
-read_remote_mjlog(logid, .progress = FALSE)
 
 read_mjlog(file, .progress = FALSE)
 }
@@ -19,8 +16,6 @@ This argument is simply passed to \code{scan()},
 so each element can be either a path to a local file or a URL.}
 
 \item{.progress}{Whether to show progress bar for \code{purrr::map_chr()}.}
-
-\item{logid}{A character vector that represents identifiers of log files.}
 }
 \value{
 A named list that contains following elements:
@@ -35,12 +30,6 @@ Reads and parses 'tenhou.net/6' format JSON files
 while transforming them into 'mjai' format.
 }
 \details{
-\code{read_remote_mjlog()} internally reads
-remote JSON files corresponding to \code{logid},
-and converts them into the same format as \code{read_tenhou6()}.
-Note that \code{read_remote_mjlog()} is rate-limited to 2 requests per second
-to access the server.
-
 Alternatively, \code{read_mjlog()} can directly read local 'MJLOG' XML files
 while converting them into 'mjai' format.
 This function returns almost the same result as \code{read_tenhou6()},

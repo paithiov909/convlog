@@ -4,6 +4,7 @@
 # convlog
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 convlog offers wrappers for the ‘convlog’ Rust crate from
